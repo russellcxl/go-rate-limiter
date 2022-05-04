@@ -8,8 +8,9 @@ import (
 func main() {
 
 	//intervalLimiter()
-	burstyLimiter()
+	//burstyLimiter()
 	//ticker()
+	ticker2()
 
 }
 
@@ -55,12 +56,13 @@ func burstyLimiter() {
 	close(reqs)
 
 	for req := range reqs {
-		l := <-limiter
+		l := <-limiter // will read 3, then block until there is an input from the ticker
 		fmt.Println("request", req, l)
 	}
 }
 
 func ticker() {
+	// every 1 second, the current time will be sent into t.C channel
 	t := time.NewTicker(time.Second)
 	defer t.Stop()
 	done := make(chan bool)
@@ -76,5 +78,13 @@ func ticker() {
 		case timeFromTicker := <-t.C:
 			fmt.Println("Current time: ", timeFromTicker)
 		}
+	}
+}
+
+func ticker2() {
+	t := time.NewTicker(time.Second)
+
+	for ; true; <-t.C {
+		fmt.Println(time.Now())
 	}
 }
