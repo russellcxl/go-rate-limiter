@@ -5,8 +5,6 @@ import (
 	"time"
 )
 
-// token factory function creates a new token
-type tokenFactory func() *Token
 
 // Token represents a Rate Limit Token
 type Token struct {

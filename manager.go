@@ -1,5 +1,8 @@
 package go_rate_limiter
 
+// token factory function creates a new token
+type tokenFactory func() *Token
+
 // Manager implements a rate limiter interface.
 type Manager struct {
 	errorChan    chan error
@@ -25,7 +28,7 @@ func (m *Manager) Acquire() (*Token, error) {
 		m.inChan <- struct{}{}
 	}()
 
-	// Await rate limit token (or error)
+	// Blocks until token (or error) is received from
 	select {
 	case t := <-m.outChan:
 		return t, nil
