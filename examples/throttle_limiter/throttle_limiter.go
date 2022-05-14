@@ -23,15 +23,15 @@ func main() {
 	doWork := func(idx int) {
 		// Acquire a rate limit token
 		token, err := r.Acquire()
-		fmt.Printf("Rate Limit Token %s acquired at %s...\n", token.ID, time.Now().UTC())
+		fmt.Printf("Worker %d acquired token %s at %s...\n", idx, token.ID, time.Now().UTC())
 		if err != nil {
 			panic(err)
 		}
 		// Simulate some other work; takes between 0-5 seconds
 		n := rand.Intn(5)
-		fmt.Printf("Worker %d sleeping for %d seconds...\n", idx, n)
+		fmt.Printf("Worker %d working for %d seconds...\n", idx, n)
 		time.Sleep(time.Duration(n) * time.Second)
-		fmt.Printf("Worker %d Done\n", idx)
+		fmt.Printf("Worker %d done\n", idx)
 		defer wg.Done()
 	}
 

@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
 func main() {
 
-	//intervalLimiter()
+	intervalLimiter()
+	//intervalTicker2()
 	//burstyLimiter()
 	//ticker()
-	ticker2()
 
 }
 
@@ -24,10 +25,10 @@ func intervalLimiter() {
 	}
 	close(requests)
 
-	limiter := time.Tick(2 * time.Second)
+	t := time.NewTicker(1 * time.Second)
 
 	for req := range requests {
-		<-limiter
+		<-t.C // will block until the next tick from the timer
 		fmt.Println("request", req, time.Now())
 	}
 }
@@ -81,10 +82,30 @@ func ticker() {
 	}
 }
 
-func ticker2() {
-	t := time.NewTicker(time.Second)
+func intervalTicker2() {
 
-	for ; true; <-t.C {
-		fmt.Println(time.Now())
+	inChannel := make(chan bool)
+
+	// limiter that limits the system to 1 task per second
+	go func() {
+		t := time.NewTicker(time.Second)
+		for ; true; <-t.C {
+			<-inChannel
+			fmt.Println("TASK RECEIVED AT:", time.Now())
+		}
+	}()
+
+	var wg sync.WaitGroup
+
+	// start 5 concurrent tasks
+	for i := 0; i < 5; i++ {
+		wg.Add(1)
+		go func() {
+			inChannel <- true
+			defer wg.Done()
+		}()
 	}
+
+	wg.Wait()
+
 }

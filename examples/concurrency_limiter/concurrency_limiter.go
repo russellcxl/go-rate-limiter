@@ -11,6 +11,7 @@ import (
 func main() {
 	r, err := ratelimiter.NewMaxConcurrencyRateLimiter(&ratelimiter.Config{
 		Limit: 3,
+		TokenResetsAfter: 10 * time.Second,
 	})
 
 	if err != nil {
@@ -23,16 +24,19 @@ func main() {
 	doWork := func(id int) {
 		// Acquire a rate limit token
 		token, err := r.Acquire()
-		fmt.Printf("Rate Limit Token %s acquired at %s...\n", token.ID, time.Now().UTC())
+		fmt.Printf("Worker %d acquired token %s at %s...\n", id, token.ID, time.Now().UTC())
 		if err != nil {
 			panic(err)
 		}
 		// Simulate some work
 		n := rand.Intn(5)
-		fmt.Printf("Worker %d Sleeping %d seconds...\n", id, n)
+		fmt.Printf("Worker %d working for %d seconds...\n", id, n)
 		time.Sleep(time.Duration(n) * time.Second)
-		fmt.Printf("Worker %d Done\n", id)
-		r.Release(token)
+		fmt.Printf("Worker %d done\n", id)
+
+		// release the token once the worker is done; can simulate case where worker forgets to release token
+		//r.Release(token)
+
 		wg.Done()
 	}
 

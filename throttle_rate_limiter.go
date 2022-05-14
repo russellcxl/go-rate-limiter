@@ -6,7 +6,7 @@ import (
 )
 
 // NewThrottleRateLimiter returns a throttle rate limiter
-func NewThrottleRateLimiter(conf *Config) (RateLimiter, error) {
+func NewThrottleRateLimiter(conf *Config) (*Manager, error) {
 	if conf.Throttle == 0 {
 		return nil, errors.New("Throttle duration must be greater than zero")
 	}
