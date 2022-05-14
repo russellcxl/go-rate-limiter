@@ -9,15 +9,30 @@ import (
 // token factory function creates a new token
 type tokenFactory func() *Token
 
-// Manager implements a rate limiter interface.
+/*
+Manager implements a rate limiter interface.
+
+- when you start the program, it will keep receiving from inChan and releaseChan
+
+- inChan is for taking in requests from clients i.e. when Acquire() is called
+- when the program receives something from inChan, it tries to generate a token and sends it to outChan
+- sometimes the generation fails, and the error is returned to errorChan instead
+
+- releaseChan is for taking in requests from either the cronjob or clients; and requires a Token in the req
+- for clients, they will have to call Release() once they are done with the Token
+- but if the clients sometimes forget, there is a cronjob that will look for expired Token (s) and release them
+- both these operations will send Token into the releaseChan
+- once the program receives a Token in the releaseChan, it will attempt to release that Token from a map
+
+ */
 type Manager struct {
 	errorChan    chan error
 	outChan      chan *Token
 	inChan       chan bool
 	releaseChan  chan *Token
-	needToken    int64
+	needToken    int64 // there are requests waiting for a Token
 	activeTokens map[string]*Token
-	limit        int
+	limit        int // max number of activeTokens allowed
 	makeToken    tokenFactory
 }
 
