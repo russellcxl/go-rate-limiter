@@ -8,6 +8,7 @@ func NewMaxConcurrencyRateLimiter(conf *Config) (RateLimiter, error) {
 
 	m := NewManager(conf)
 
+	// cronjob to reset tokens every X seconds in case users forget to release them
 	m.runResetTokenTask(conf.TokenResetsAfter)
 
 	go func() {

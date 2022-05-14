@@ -22,12 +22,14 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	doWork := func(id int) {
+
 		// Acquire a rate limit token
 		token, err := r.Acquire()
 		fmt.Printf("Worker %d acquired token %s at %s...\n", id, token.ID, time.Now().UTC())
 		if err != nil {
 			panic(err)
 		}
+
 		// Simulate some work
 		n := rand.Intn(5)
 		fmt.Printf("Worker %d working for %d seconds...\n", id, n)
